@@ -14,7 +14,137 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
   <link rel="manifest" href="/img/site.webmanifest">
 
-  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', sans-serif;
+      color: #fff;
+    }
+
+
+    li button {
+      display: block;
+      padding: 0.5rem 1rem;
+      color: #0d6efd;
+      text-decoration: none;
+      transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out;
+      background-color: #1a1a1c;
+      ;
+      border: none;
+    }
+
+    .coin-app {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 64px;
+      color: #fff;
+    }
+
+    .coin-search {
+      margin-bottom: 64px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-content: center;
+    }
+
+    .coin-text {
+      margin-bottom: 32px;
+      text-align: center;
+    }
+
+    .coin-input {
+      padding-left: 16px;
+      width: 300px;
+      height: 50px;
+      border-radius: 4px;
+      border: none;
+      background-image: linear-gradient(-225deg,
+          #ac32e4 0%,
+          #7918f2 48%,
+          #4801ff 100%);
+
+      color: #e2e2e2;
+    }
+
+    .coin-input::placeholder {
+      color: #e2e2e2;
+    }
+
+    .coin-container {
+      display: flex;
+      justify-content: center;
+    }
+
+    .coin-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: start;
+      align-items: center;
+      height: 80px;
+      border-bottom: 1px solid #d7d7d7;
+      width: 900px;
+    }
+
+    .coin {
+      display: flex;
+      align-items: center;
+      padding-right: 24px;
+
+      min-width: 300px;
+    }
+
+    .coin h1 {
+      font-size: 16px;
+      width: 150px;
+    }
+
+    .coin img {
+      height: 30px;
+      width: 30px;
+      margin-right: 10px;
+    }
+
+    .coin-symbol {
+      text-transform: uppercase;
+    }
+
+    .coin-data {
+      display: flex;
+      text-align: right;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .coin-price {
+      width: 110px;
+    }
+
+    .coin-volume {
+      width: 155px;
+    }
+
+    .coin-marketcap {
+      width: 230px;
+    }
+
+    .coin-percent {
+      width: 100px;
+    }
+
+    .red {
+      color: #f00606;
+    }
+
+    .green {
+      color: #11d811;
+    }
+  </style>
 </head>
 
 <body style=" background-color: #1a1a1c;">
@@ -97,7 +227,110 @@
       integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
       crossorigin="anonymous"></script>
 
-    <script src="/js/script.js"></script>
+    <script>
+      fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=inr&order=market_cap_desc&per_page=100&page=1&sparkline=false')
+        .then(response => {
+          return response.json()
+        })
+        .then(data => {
+          let x = document.querySelector('#info');
+
+          for (let i = 0; i < 30; i++) {
+            if (data[i].price_change_percentage_24h < 0) {
+              x.innerHTML += `<div class='coin-container'>
+            <div class='coin-row'>
+              <div class='coin'>
+                <img src=${data[i].image} alt='crypto' />
+                <h1>${data[i].name}</h1>
+                <p class='coin-symbol'>${data[i].symbol}</p>
+              </div>
+              <div class='coin-data'>
+              <p class='coin-price'>Rs.${data[i].current_price}</p>
+              <p class='coin-volume'>${data[i].total_volume}</p>
+                <p class='coin-percent red'>${data[i].price_change_percentage_24h.toFixed(2)}%</p>
+                Mkt Cap: ${data[i].market_cap.toLocaleString()}
+            </div>
+                </div>
+          </div>`;
+            } else {
+              x.innerHTML += `<div class='coin-container'>
+            <div class='coin-row'>
+              <div class='coin'>
+                <img src=${data[i].image} alt='crypto' />
+                <h1>${data[i].name}</h1>
+                <p class='coin-symbol'>${data[i].symbol}</p>
+              </div>
+              <div class='coin-data'>
+              <p class='coin-price'>Rs.${data[i].current_price}</p>
+              <p class='coin-volume'>${data[i].total_volume}</p>
+              <p class='coin-percent green'>${data[i].price_change_percentage_24h.toFixed(2)}%</p>
+                Mkt Cap: ${data[i].market_cap.toLocaleString()}
+            </div>
+                </div>
+          </div>`;
+            }
+          }
+
+          search = () => {
+
+            if (event.keyCode === 13) {
+              const y = document.querySelector('.coin-input').value.toLowerCase();
+              const z = document.querySelector('#infosearch');
+              if (y == "") {
+                x.style.display = "block";
+                z.style.display = "none";
+              } else {
+                data.forEach(element => {
+                  if (y == element.id || y == element.symbol) {
+                    x.style.display = "none";
+                    z.style.display = "block";
+                    if (element.price_change_percentage_24h < 0) {
+                      z.innerHTML = `<div class='coin-container'>
+                    <div class='coin-row'>
+                      <div class='coin'>
+                        <img src=${element.image} alt='crypto' />
+                        <h1>${element.name}</h1>
+                        <p class='coin-symbol'>${element.symbol}</p>
+                      </div>
+                      <div class='coin-data'>
+                      <p class='coin-price'>Rs.${element.current_price}</p>
+                      <p class='coin-volume'>${element.total_volume}</p>
+                        <p class='coin-percent red'>${element.price_change_percentage_24h.toFixed(2)}%</p>
+                        Mkt Cap: ${element.market_cap.toLocaleString()}
+                    </div>
+                        </div>
+                  </div>`;
+                    } else {
+                      z.innerHTML = `<div class='coin-container'>
+                    <div class='coin-row'>
+                      <div class='coin'>
+                        <img src=${element.image} alt='crypto' />
+                        <h1>${element.name}</h1>
+                        <p class='coin-symbol'>${element.symbol}</p>
+                      </div>
+                      <div class='coin-data'>
+                      <p class='coin-price'>Rs.${element.current_price}</p>
+                      <p class='coin-volume'>${element.total_volume}</p>
+                      <p class='coin-percent green'>${element.price_change_percentage_24h.toFixed(2)}%</p>
+                        Mkt Cap: ${element.market_cap.toLocaleString()}
+                    </div>
+                        </div>
+                  </div>`;
+                    }
+                  }
+                  // }else{
+                  //   x.style.display="none";
+                  //   z.style.display="block";
+                  //   z.innerHTML = `<b>No Results found.</b>`
+                  // }
+                });
+              }
+            }
+          }
+
+
+        })
+    </script>
 </body>
 
 </html>
